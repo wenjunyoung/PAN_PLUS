@@ -1,0 +1,10 @@
+torch==1.7.0
+torchvision==0.8
+mmcv==1.3.11
+editdistance
+Polygon3
+pyclipper
+opencv-python==3.4.2.17
+Cython
+scipy
+matplotlib
