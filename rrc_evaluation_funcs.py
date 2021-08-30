@@ -299,6 +299,8 @@ def main_evaluation(p,default_evaluation_params_fn,validate_data_fn,evaluate_met
 
     resDict={'calculated':True,'Message':'','method':'{}','per_sample':'{}', 'iouMethod': '{}', 'tiouMethod': '{}'}
 
+    # p['g'] = 
+    # p['s'] = './outputs/submit_ic15.zip'
 
     try:
         validate_data_fn(p['g'], p['s'], evalParams)

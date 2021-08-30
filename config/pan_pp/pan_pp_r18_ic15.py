@@ -1,7 +1,7 @@
 model = dict(
     type='PAN_PP',
     backbone=dict(
-        type='resnet18',
+        type='resnet50',
         pretrained=True
     ),
     neck=dict(
@@ -32,7 +32,7 @@ model = dict(
     )
 )
 data = dict(
-    batch_size=16,
+    batch_size=8,
     
     train=dict(
         type='PAN_PP_IC15',

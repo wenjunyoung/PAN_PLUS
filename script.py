@@ -443,7 +443,8 @@ def evaluate_method(gtFilePath, submFilePath, evaluationParams):
     
     methodMetrics = {'precision':methodPrecision, 'recall':methodRecall,'hmean': methodHmean}
     iouMethodMetrics = {'iouPrecision':methodPrecision_iou, 'iouRecall':methodRecall_iou,'iouHmean': iouMethodHmean }
-    tiouMethodMetrics = {'tiouPrecision':methodPrecision_tiouDt, 'tiouRecall':methodRecall_tiouGt,'tiouHmean': tiouMethodHmean }
+    # tiouMethodMetrics = {'tiouPrecision':methodPrecision_tiouDt, 'tiouRecall':methodRecall_tiouGt,'tiouHmean': tiouMethodHmean }
+    tiouMethodMetrics = {'precision':methodPrecision_tiouDt, 'recall':methodRecall_tiouGt,'hmean': tiouMethodHmean }
     # print('matchedSum: ', matchedSum, 'matchedSum_cutGt: ', matchedSum_cutGt, 'cut_Rate: ', round(matchedSum_cutGt*1.0/matchedSum, 3), 'matchedSum_coverOtherGt: ', matchedSum_coverOtherGt, 'cover_Outlier_Rate: ', round(matchedSum_coverOtherGt*1.0/matchedSum, 3))
     print('Origin:')
     print("recall: ", round(methodRecall,3), "precision: ", round(methodPrecision,3), "hmean: ", round(methodHmean,3))
@@ -455,12 +456,13 @@ def evaluate_method(gtFilePath, submFilePath, evaluationParams):
     resDict = {'calculated':True,'Message':'','method': methodMetrics,'per_sample': perSampleMetrics, 'iouMethod': iouMethodMetrics, 'tiouMethod': tiouMethodMetrics}
     
     
-    return resDict;
+    return resDict
 
 
 def main_test_ic15():
-    p = {"g":'./gt.zip', "s": '../../outputs/submit_ic15.zip'}
-    rrc_evaluation_funcs.main_evaluation(p, default_evaluation_params,validate_data,evaluate_method)
+    p = {"g":'./data/ICDAR2015/gt.zip', "s": './outputs/submit_ic15.zip'}
+    result = rrc_evaluation_funcs.main_evaluation(p, default_evaluation_params,validate_data,evaluate_method)
+    return result
 
 if __name__=='__main__':
     main_test_ic15()
