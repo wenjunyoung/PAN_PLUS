@@ -53,6 +53,7 @@ class FPEM_v2(nn.Module):
         # f2_ = self.smooth_layer2_1(self.dwconv2_1(self._upsample_add(f3_, f2)))
         # f1_ = self.smooth_layer1_1(self.dwconv1_1(self._upsample_add(f2_, f1)))
 
+        # Tucker 特征融合模块
         f3_ = self.Tucker_3_1(self._upsample_add(f4, f3))
         f2_ = self.Tucker_2_1(self._upsample_add(f3_, f2))
         f1_ = self.Tucker_1_1(self._upsample_add(f2_, f1))
@@ -91,6 +92,7 @@ class Mish(nn.Module):
         x.to(device)
         return x
 
+# Tucker 模块定义
 class Tucker(nn.Module):
 
     def __init__(self, c1, c2, k=3, s=0.25, e=0.75, stride=1):
@@ -127,6 +129,7 @@ class Tucker(nn.Module):
 
         return x  
 
+# Fuser IBN模块定义，未启用
 class Fused_IBN(nn.Module):
 
     def __init__(self, c1, c2, k=3, s=8, stride=1):
@@ -153,7 +156,7 @@ class Fused_IBN(nn.Module):
 
         return x
 
-'''
+# PSConv 卷积模块的定义，未启用
 class PSConv2d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=3, stride=1, padding=1, dilation=1, parts=4, bias=False):
         super(PSConv2d, self).__init__()
@@ -180,4 +183,3 @@ class PSConv2d(nn.Module):
         x_shift = self.gwconv_shift(torch.cat((x2, x1), dim=1))
         return self.gwconv(x) + self.conv(x) + x_shift
 
-'''

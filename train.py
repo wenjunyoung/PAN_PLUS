@@ -32,6 +32,71 @@ torch.cuda.manual_seed(123456)
 np.random.seed(123456)
 random.seed(123456)
 
+
+
+def read_dir(root):
+	file_path_list = []
+	for file_path, dirs, files in os.walk(root):
+		for file in files:
+			file_path_list.append(os.path.join(file_path, file).replace('\\', '/'))
+	file_path_list.sort()
+	return file_path_list
+
+def read_file(file_path):
+	file_object = open(file_path, 'r')
+	file_content = file_object.read()
+	file_object.close()
+	return file_content
+
+def get_pred(path):
+    # lines = file_util.read_file(path).split('\n')
+    lines = read_file(path).split('\n')
+    bboxes = []
+    for line in lines:
+        if line == '':
+            continue
+        bbox = line.split(',')
+        if len(bbox) % 2 == 1:
+            print(path)
+        bbox = [int(x) for x in bbox]
+        bboxes.append(bbox)
+    return bboxes
+
+
+def get_gt(path):
+    # lines = file_util.read_file(path).split('\n')
+    lines = read_file(path).split('\n')
+    bboxes = []
+    for line in lines:
+        if line == '':
+            continue
+        # line = util.str.remove_all(line, '\xef\xbb\xbf')
+        # gt = util.str.split(line, ',')
+        gt = line.split(',')
+
+        x1 = np.int(gt[0])
+        y1 = np.int(gt[1])
+
+        bbox = [np.int(gt[i]) for i in range(4, 32)]
+        bbox = np.asarray(bbox) + ([x1, y1] * 14)
+
+        bboxes.append(bbox)
+    return bboxes
+
+
+def get_union(pD, pG):
+    areaA = pD.area()
+    areaB = pG.area()
+    return areaA + areaB - get_intersection(pD, pG);
+
+
+def get_intersection(pD, pG):
+    pInt = pD & pG
+    if len(pInt) == 0:
+        return 0
+    return pInt.area()
+
+# Total_text 数据集测试函数
 def main_test_tt():
 
     # project_root = '../../'
@@ -426,70 +491,7 @@ def main_test_tt():
 
     return {'precision':precision, 'recall':recall, 'hmean':hmean}
 
-
-
-def read_dir(root):
-	file_path_list = []
-	for file_path, dirs, files in os.walk(root):
-		for file in files:
-			file_path_list.append(os.path.join(file_path, file).replace('\\', '/'))
-	file_path_list.sort()
-	return file_path_list
-
-def read_file(file_path):
-	file_object = open(file_path, 'r')
-	file_content = file_object.read()
-	file_object.close()
-	return file_content
-
-def get_pred(path):
-    # lines = file_util.read_file(path).split('\n')
-    lines = read_file(path).split('\n')
-    bboxes = []
-    for line in lines:
-        if line == '':
-            continue
-        bbox = line.split(',')
-        if len(bbox) % 2 == 1:
-            print(path)
-        bbox = [int(x) for x in bbox]
-        bboxes.append(bbox)
-    return bboxes
-
-
-def get_gt(path):
-    # lines = file_util.read_file(path).split('\n')
-    lines = read_file(path).split('\n')
-    bboxes = []
-    for line in lines:
-        if line == '':
-            continue
-        # line = util.str.remove_all(line, '\xef\xbb\xbf')
-        # gt = util.str.split(line, ',')
-        gt = line.split(',')
-
-        x1 = np.int(gt[0])
-        y1 = np.int(gt[1])
-
-        bbox = [np.int(gt[i]) for i in range(4, 32)]
-        bbox = np.asarray(bbox) + ([x1, y1] * 14)
-
-        bboxes.append(bbox)
-    return bboxes
-
-
-def get_union(pD, pG):
-    areaA = pD.area()
-    areaB = pG.area()
-    return areaA + areaB - get_intersection(pD, pG);
-
-
-def get_intersection(pD, pG):
-    pInt = pD & pG
-    if len(pInt) == 0:
-        return 0
-    return pInt.area()
-
+# CTW1500 数据集测试函数
 def main_test_ctw():
     th = 0.5
     # pred_list = file_util.read_dir(pred_root)
@@ -554,6 +556,7 @@ def report_speed(outputs, speed_meters):
     print('FPS: %.1f' % (1.0 / speed_meters['total_time'].avg))
 
 
+# 测试功能 主函数
 def test(test_loader, model, cfg):
     model = model.cuda()
     model.eval()
@@ -597,7 +600,7 @@ def test(test_loader, model, cfg):
         image_name, _ = osp.splitext(osp.basename(test_loader.dataset.img_paths[idx]))
         rf.write_result(image_name, outputs)
 
-
+# 测试功能入口
 def main_test(args, model, checkpoint_test_file):
     cfg = Config.fromfile(args.config)
     for d in [cfg, cfg.data.test]:
@@ -649,18 +652,18 @@ def main_test(args, model, checkpoint_test_file):
     test(test_loader, model, cfg)
 
     # icdar2015
-    resDict = main_test_ic15()
-    # result = resDict['tiouMethod']
-    result = resDict['method']
+    # resDict = main_test_ic15()
+    # result = resDict['method']
     
     # ctw
     # result = main_test_ctw()
     # tt
-    # result = main_test_tt()
+    result = main_test_tt()
 
     return result
 
 
+# 训练功能函数
 def train(train_loader, model, optimizer, epoch, start_iter, cfg):
     model.train()
 
@@ -778,7 +781,7 @@ def train(train_loader, model, optimizer, epoch, start_iter, cfg):
             print(output_log)
             sys.stdout.flush()
 
-
+# 调整学习率
 def adjust_learning_rate(optimizer, dataloader, epoch, iter, cfg):
     schedule = cfg.train_cfg.schedule
 
@@ -797,7 +800,7 @@ def adjust_learning_rate(optimizer, dataloader, epoch, iter, cfg):
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
 
-
+# 保存模型
 def save_checkpoint(state, checkpoint_path, cfg):
     file_path = osp.join(checkpoint_path, 'checkpoint.pth.tar')
     torch.save(state, file_path)
@@ -808,7 +811,7 @@ def save_checkpoint(state, checkpoint_path, cfg):
         file_path = osp.join(checkpoint_path, file_name)
         torch.save(state, file_path)
 
-
+# 主函数
 def main(args):
     cfg = Config.fromfile(args.config)
     print(json.dumps(cfg._cfg_dict, indent=4))
@@ -848,7 +851,7 @@ def main(args):
     model = build_model(cfg.model)
     model = torch.nn.DataParallel(model).cuda()
     # model = model.cuda()
-    print("================ Start Load model ...=====================\n")
+    print("================ Start Loading model ...=====================\n")
 
     # Check if model has custom optimizer / loss
     if hasattr(model.module, 'optimizer'):

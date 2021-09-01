@@ -7,6 +7,10 @@ import importlib
 import math
 import pdb
 
+'''
+  这是 ICDAR2015 数据集的 测试函数入口
+'''
+
 def evaluation_imports():
     """
     evaluation_imports: Dictionary ( key = module name , value = alias  )  with python modules used in the evaluation. 

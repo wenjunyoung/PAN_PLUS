@@ -10,6 +10,10 @@ import codecs
 import importlib
 from io import StringIO
 
+''''
+  这是 ICDAR2015 数据集的 测试功能 相关的 函数
+'''
+
 def print_help():
     sys.stdout.write('Usage: python %s.py -g=<gtFile> -s=<submFile> [-o=<outputFolder> -p=<jsonParams>]' %sys.argv[0])
     sys.exit(2)
